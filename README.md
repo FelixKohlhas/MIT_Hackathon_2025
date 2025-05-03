@@ -76,9 +76,14 @@ I barely used `GitHub Copilot` this time, because it was often faster to make th
 I mainly let the LLMs generate functions and manually integrated them with each other. This works the best, as the models still sometimes have problems completing two tasks at once.
 
 ### Data
+
 The source of the data about the hospitals is the "TK-Klinikführer". It was converted from text to JSON using `gpt-4o-mini`.
 More information can be found in map_data/README.md.
 
-### Challenges
+### Expectations, Challenges and Results
 
-There are still many things to do to finish the project. The 24h time limit was a bit too short to finish everything I wanted to do, so the demos are mainly static.
+I had no prior experience with voice-based agents and was worried that latency would be the biggest issue for this project. This is why I spent the most time of the project working on the voice agent. I am really pleased with how well it turned out. The voice assistant has such low latency that the delay is barely noticable and the conversation feels natural. I think though streaming the Speech-to-Text live into the LLM, I was able to achieve the lowest latency possible, without the use of a multi-modal model.
+
+Its sad that the dashboards are currently using static files to emulate a backend, but I descided that this was the best way of showing what the product may look like, without spending too much time on simple, but tedious work on the backend. I think with just another 24h hours a completely functional prototype of the whole system could be built. To add all the planned features, it would probably take multiple week however.
+
+Overall the 24hr time limit was quite a constraint, especially with night time falling right in the middle of it in my timezone. I think a 48hr event would have been a good compromise between allowing projects to be matured more and not making the Hackathon too long overall. Either way I am very grateful for having had the opportunity to participate in this great Hackathon. Thank you to the organizers!
