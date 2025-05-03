@@ -1,5 +1,10 @@
 # 525 – Automated Disaster Information Gathering System
 
+<div align="center">
+  <img width="40%" alt="Screenshot 2025-05-03 at 14 36 22" src="https://github.com/user-attachments/assets/7ca76ff1-aab8-4e74-b38b-971edf54c3d4" />
+  <img width="40%" alt="Screenshot 2025-05-03 at 14 36 35" src="https://github.com/user-attachments/assets/1d8b1001-5420-4f2a-80bc-dee4ae11683e" />
+</div>
+
 ## Voice Agent Demo
 ### Install dependencies
 ```bash
