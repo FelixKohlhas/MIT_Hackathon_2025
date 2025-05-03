@@ -1,0 +1,8 @@
+sounddevice
+numpy
+webrtcvad
+openai
+wave
+pyaudio
+cartesia
+jinja2

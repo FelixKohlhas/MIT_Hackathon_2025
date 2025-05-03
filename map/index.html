@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset='utf-8' />
+    <title>Hospital Status Map</title>
+    <meta name='viewport' content='width=device-width, initial-scale=1' />
+    <script src='https://api.mapbox.com/mapbox-gl-js/v2.9.2/mapbox-gl.js'></script>
+    <link href='https://api.mapbox.com/mapbox-gl-js/v2.9.2/mapbox-gl.css' rel='stylesheet' />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body { margin: 0; padding: 0; }
+        #map { width: 100vw; height: 100vh; }
+        .map-overlay {
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            background: rgba(255, 255, 255, 0.9);
+            padding: 15px;
+            border-radius: 5px;
+            font-family: Arial, sans-serif;
+            z-index: 1;
+            box-shadow: 0 0 10px rgba(0,0,0,0.2);
+        }
+        .legend-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 5px;
+        }
+        .legend-color {
+            width: 20px;
+            height: 20px;
+            margin-right: 8px;
+            border: 1px solid #333;
+            border-radius: 50%;
+        }
+        .legend-icon {
+            width: 20px;
+            margin-right: 8px;
+            text-align: center;
+        }
+        .mapboxgl-popup-content {
+            min-width: 250px;
+        }
+        .mapboxgl-popup-content b {
+            color: #333;
+        }
+        .mapboxgl-popup-content i {
+            color: #666;
+        }
+        .mapboxgl-popup-content hr {
+            margin: 8px 0;
+            border: 0;
+            border-top: 1px solid #eee;
+        }
+        .status-available { color: #4CAF50; }
+        .status-affected { color: #FF9800; }
+        .status-max-capacity { color: #F44336; }
+        .status-offline { color: #9E9E9E; }
+    </style>
+</head>
+<body>
+    <div id='map'></div>
+    <div class="map-overlay">
+        <h3>Hospital Status</h3>
+        <div class="legend-item">
+            <div class="legend-color" style="background-color: #4CAF50;"></div>
+            <span>Available</span>
+        </div>
+        <div class="legend-item">
+            <div class="legend-color" style="background-color: #FF9800;"></div>
+            <span>Affected</span>
+        </div>
+        <div class="legend-item">
+            <div class="legend-color" style="background-color: #F44336;"></div>
+            <span>Max Capacity</span>
+        </div>
+        <div class="legend-item">
+            <div class="legend-color" style="background-color: #9E9E9E;"></div>
+            <span>Offline</span>
+        </div>
+        
+        <h3 style="margin-top: 15px;">Last Update</h3>
+        <div class="legend-item">
+            <div class="legend-icon"><i class="fas fa-phone" style="color: #2196F3;"></i></div>
+            <span>&lt; 5 min</span>
+        </div>
+        <div class="legend-item">
+            <div class="legend-icon"><i class="fas fa-phone" style="color: #4CAF50;"></i></div>
+            <span>&lt; 10 min</span>
+        </div>
+        <div class="legend-item">
+            <div class="legend-icon"><i class="fas fa-phone" style="color: #FFC107;"></i></div>
+            <span>&lt; 30 min</span>
+        </div>
+        <div class="legend-item">
+            <div class="legend-icon"><i class="fas fa-phone" style="color: #F44336;"></i></div>
+            <span>&gt; 30 min</span>
+        </div>
+    </div>
+
+    <script>
+        // Replace with your Mapbox access token
+        mapboxgl.accessToken = 'pk.eyJ1IjoiZmVsaXhha2FmeCIsImEiOiJjbWE4MDltZXQxMmo2MmxzZ3lmODNwOGJiIn0.oRH_lSVX3Tqk8xi1woEfMg';
+        
+        const map = new mapboxgl.Map({
+            container: 'map',
+            style: 'mapbox://styles/mapbox/light-v11',
+            center: [8.6846, 49.4232], // Initial map center (Heidelberg)
+            zoom: 12
+        });
+
+        // Status color mapping
+        const statusColors = {
+            'available': '#4CAF50',    // Green
+            'affected': '#FF9800',     // Orange
+            'max-capacity': '#F44336', // Red
+            'offline': '#9E9E9E'      // Gray
+        };
+
+        // Update recency color mapping
+        function getUpdateColor(seconds) {
+            if (seconds < 300) return '#2196F3';   // Blue (<5 min)
+            if (seconds < 600) return '#4CAF50';   // Green (<10 min)
+            if (seconds < 1800) return '#FFC107'; // Yellow (<30 min)
+            return '#F44336';                     // Red (>30 min)
+        }
+
+        // Format time string
+        function formatUpdateTime(seconds) {
+            if (seconds < 60) return `${seconds} seconds ago`;
+            if (seconds < 3600) return `${Math.floor(seconds/60)} minutes ago`;
+            if (seconds < 86400) return `${Math.floor(seconds/3600)} hours ago`;
+            return `${Math.floor(seconds/86400)} days ago`;
+        }
+
+        map.on('load', async () => {
+            try {
+                // Fetch hospital data from JSON file
+                const response = await fetch('hospitals.json');
+                if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+                const hospitalData = await response.json();
+
+                // Convert to GeoJSON
+                const geojson = {
+                    type: 'FeatureCollection',
+                    features: hospitalData.map(hospital => ({
+                        type: 'Feature',
+                        geometry: {
+                            type: 'Point',
+                            coordinates: [hospital.coordinates[1], hospital.coordinates[0]]
+                        },
+                        properties: {
+                            name: hospital.name,
+                            address: hospital.address,
+                            total_beds: hospital.total_beds,
+                            used_beds: hospital.used_beds,
+                            available_beds: hospital.total_beds - hospital.used_beds,
+                            status: hospital.status,
+                            last_update_seconds: hospital.last_update_seconds,
+                            utilization: Math.round((hospital.used_beds / hospital.total_beds) * 100),
+                            update_color: getUpdateColor(hospital.last_update_seconds),
+                            status_color: statusColors[hospital.status] || '#9E9E9E'
+                        }
+                    }))
+                };
+
+                // Add hospital data source
+                map.addSource('hospitals', {
+                    type: 'geojson',
+                    data: geojson
+                });
+
+                // Add main hospital circles
+                map.addLayer({
+                    id: 'hospitals-base',
+                    type: 'circle',
+                    source: 'hospitals',
+                    paint: {
+                        'circle-radius': [
+                            'interpolate', ['linear'],
+                            ['get', 'total_beds'],
+                            0, 16,
+                            100, 20,
+                            300, 24,
+                            500, 28,
+                            1000, 32
+                        ],
+                        'circle-color': ['get', 'status_color'],
+                        'circle-stroke-width': 2,
+                        'circle-stroke-color': '#ffffff',
+                        'circle-opacity': 0.9
+                    }
+                });
+
+                // Add telephone icons in the center
+                map.addLayer({
+                    id: 'hospitals-icon',
+                    type: 'symbol',
+                    source: 'hospitals',
+                    layout: {
+                        'icon-image': 'telephone-icon',
+                        'icon-size': 0.3,
+                        'icon-allow-overlap': true
+                    },
+                    paint: {
+                        'icon-color': ['get', 'update_color'],
+                        'icon-halo-color': '#ffffff',
+                        'icon-halo-width': 2,
+                    }
+                });
+
+                // Load custom telephone icon
+                map.loadImage("phone.png", (error, image) => {
+                    if (error) throw error;
+                    map.addImage('telephone-icon', image);
+                });
+
+                // Create popup
+                const popup = new mapboxgl.Popup({
+                    closeButton: false,
+                    closeOnClick: false,
+                    offset: 25
+                });
+
+                // Show popup on hover
+                map.on('mousemove', 'hospitals-base', (e) => {
+                    map.getCanvas().style.cursor = 'pointer';
+                    const feature = e.features[0];
+                    
+                    popup
+                        .setLngLat(e.lngLat)
+                        .setHTML(`
+                            <b>${feature.properties.name}</b><br>
+                            <i>${feature.properties.address}</i>
+                            <hr>
+                            Last Update: ${formatUpdateTime(feature.properties.last_update_seconds)}<br>
+                            Status: <span class="status-${feature.properties.status.replace('_','-')}">
+                                ${feature.properties.status.replace('-', ' ').toUpperCase()}
+                            </span>
+                            <hr>
+                            Available Beds: ${feature.properties.available_beds} / ${feature.properties.total_beds} (${feature.properties.utilization}%)
+                        `)
+                        .addTo(map);
+                });
+
+                // Clean up on mouse leave
+                map.on('mouseleave', 'hospitals-base', () => {
+                    map.getCanvas().style.cursor = '';
+                    popup.remove();
+                });
+
+                // Fit bounds to all hospitals
+                if (geojson.features.length > 0) {
+                    const bounds = new mapboxgl.LngLatBounds();
+                    geojson.features.forEach(feature => {
+                        bounds.extend(feature.geometry.coordinates);
+                    });
+                    map.fitBounds(bounds, { padding: 50 });
+                }
+
+            } catch (error) {
+                console.error('Error loading hospital data:', error);
+                alert('Failed to load hospital data. Please check console for details.');
+            }
+        });
+    </script>
+</body>
+</html>

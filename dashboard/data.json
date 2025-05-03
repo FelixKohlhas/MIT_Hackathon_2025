@@ -1,0 +1,36 @@
+{
+    "residents": {
+        "tasks": [
+            "If you are directly affected by the fire, please evacuate immediately and notify 9-1-1.",
+            "If you are in a safe place, please stay there.",
+            "Close all windows and doors."
+        ],
+        "questions": [
+            "Are you safe?",
+            "Where are you?",
+            "Can you see the fire?"
+        ]
+    },
+    "firefighters": {
+        "tasks": [],
+        "questions": [
+            "How many firefighters are currently on the scene?",
+            "How many firefighters are still available?",
+            "Are there any injuries?"
+        ]
+    },
+    "hospitals": {
+        "tasks": [],
+        "questions": [
+            "How many patients are currently in the hospital?",
+            "How many patients are currently in the ICU?",
+            "How many patients have been admitted because of the fire?",
+            "How many patients are in a critical condition?",
+            "How many patients are have passed away?",
+            "Which additional resources are needed?",
+            "How many patients could you still take in?",
+            "What is the current waiting time for urgent cases?",
+            "Should the hospital be taken offline?"
+        ]
+    }
+}

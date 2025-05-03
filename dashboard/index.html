@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Emergency Response Dashboard</title>
+    <style>
+        :root {
+            --primary-color: #4a6fa5;
+            --secondary-color: #6b8cae;
+            --background-color: #f8f9fa;
+            --card-color: #ffffff;
+            --text-color: #333333;
+            --border-color: #e0e0e0;
+            --highlight-color: #f0f7ff;
+            --task-card-color: #fff3cd;
+            --question-card-color: #d1ecf1;
+            --column-header-color: #e9ecef;
+            --task-icon-color: rgba(255, 193, 7, 0.5);
+            --question-icon-color: rgba(23, 162, 184, 0.5);
+        }
+
+        body {
+            font-family: 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+            background-color: var(--background-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 20px;
+            line-height: 1.6;
+        }
+
+        .dashboard-container {
+            display: flex;
+            flex-direction: column;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .columns-container {
+            display: flex;
+            gap: 25px;
+            overflow-x: auto;
+            padding-bottom: 20px;
+        }
+
+        .column {
+            flex: 1;
+            min-width: 350px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .column-header {
+            background-color: var(--column-header-color);
+            padding: 15px 20px;
+            font-size: 20px;
+            font-weight: 600;
+            border-radius: 8px;
+            text-align: center;
+            margin-bottom: 5px;
+        }
+
+        .card {
+            background-color: var(--card-color);
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+            overflow: hidden;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .tasks-card {
+            background-color: var(--task-card-color);
+            border-left: 4px solid #ffc107;
+        }
+
+        .questions-card {
+            background-color: var(--question-card-color);
+            border-left: 4px solid #17a2b8;
+            margin-top: 15px;
+        }
+
+        .card-header {
+            padding: 12px 20px;
+            font-size: 16px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            position: relative;
+        }
+
+        .card-header::before {
+            position: absolute;
+            left: 10px;
+            font-size: 24px;
+            font-weight: bold;
+        }
+
+        .tasks-card .card-header::before {
+            content: "!";
+            color: var(--task-icon-color);
+        }
+
+        .questions-card .card-header::before {
+            content: "?";
+            color: var(--question-icon-color);
+        }
+
+        .card-header-text {
+            margin-left: 10px;
+        }
+
+        .card-body {
+            padding: 0;
+        }
+
+        .task-item, .question-item {
+            padding: 12px 20px 12px 20px;
+            border-bottom: 1px solid var(--border-color);
+            transition: background-color 0.2s ease;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .task-item {
+            background-color: rgba(255, 243, 205, 0.5);
+        }
+
+        .question-item {
+            background-color: rgba(209, 236, 241, 0.5);
+        }
+
+        .task-item:hover, .question-item:hover {
+            background-color: var(--highlight-color);
+        }
+
+        .item-content {
+            flex-grow: 1;
+            margin-right: 15px;
+        }
+
+        .item-text {
+            margin: 0;
+            font-size: 14px;
+            color: var(--text-color);
+            width: 100%;
+            padding: 8px;
+            border: 1px solid transparent;
+            border-radius: 4px;
+            background: transparent;
+        }
+
+        .item-text:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            background: white;
+        }
+
+        .answer-link {
+            color: var(--primary-color);
+            text-decoration: none;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            white-space: nowrap;
+            padding: 6px 10px;
+            border-radius: 4px;
+            transition: background-color 0.2s ease;
+            font-size: 14px;
+        }
+
+        .answer-link:hover {
+            background-color: rgba(74, 111, 165, 0.1);
+        }
+
+        .answer-link i {
+            margin-left: 5px;
+            font-size: 12px;
+        }
+
+        .add-item {
+            padding: 12px 20px;
+            display: flex;
+        }
+
+        .add-item-input {
+            flex-grow: 1;
+            padding: 8px 12px;
+            border: 1px dashed var(--border-color);
+            border-radius: 4px;
+            font-size: 14px;
+            margin-right: 8px;
+            transition: all 0.2s ease;
+        }
+
+        .add-item-input::placeholder {
+            color: #999;
+        }
+
+        .add-item-input:focus {
+            outline: none;
+            border: 1px solid var(--primary-color);
+            box-shadow: 0 0 0 2px rgba(74, 111, 165, 0.2);
+        }
+
+        .add-item-btn {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 4px;
+            padding: 0 12px;
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .add-item-btn:hover {
+            background-color: #3a5a8a;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            color: var(--primary-color);
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            color: var(--secondary-color);
+            margin-top: 0;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            font-size: 18px;
+            color: var(--secondary-color);
+        }
+    </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body>
+    <div class="header">
+        <h1>Emergency Response Dashboard</h1>
+        <p>Real-time information collection and monitoring</p>
+    </div>
+
+    <div class="dashboard-container">
+        <div id="dashboard" class="columns-container">
+            <div class="loading">Loading data...</div>
+        </div>
+    </div>
+
+    <script>
+        // Function to create a card for tasks or questions
+        function createSubCard(type, items, category) {
+            const card = document.createElement('div');
+            card.className = type === 'tasks' ? 'card tasks-card' : 'card questions-card';
+
+            // Create card header
+            const cardHeader = document.createElement('div');
+            cardHeader.className = 'card-header';
+            
+            const headerText = document.createElement('div');
+            headerText.className = 'card-header-text';
+            headerText.textContent = type === 'tasks' ? 'Tasks' : 'Questions';
+            cardHeader.appendChild(headerText);
+            
+            card.appendChild(cardHeader);
+
+            // Create card body
+            const cardBody = document.createElement('div');
+            cardBody.className = 'card-body';
+
+            // Add existing items
+            items.forEach((item, index) => {
+                if (!item.trim()) return; // Skip empty items
+                
+                const itemElement = document.createElement('div');
+                itemElement.className = type === 'tasks' ? 'task-item' : 'question-item';
+
+                const itemContent = document.createElement('div');
+                itemContent.className = 'item-content';
+
+                const itemText = document.createElement('input');
+                itemText.type = 'text';
+                itemText.className = 'item-text';
+                itemText.value = item;
+                
+                // Handle item updates and removal if empty
+                itemText.addEventListener('blur', function() {
+                    if (this.value.trim() === '') {
+                        // Remove empty item
+                        items.splice(index, 1);
+                        itemElement.remove();
+                    } else {
+                        // Update item
+                        items[index] = this.value;
+                    }
+                });
+                
+                itemContent.appendChild(itemText);
+
+                itemElement.appendChild(itemContent);
+
+                if (type === 'questions') {
+                    const answerLink = document.createElement('a');
+                    answerLink.href = `/map/q/${category}/${index + 1}`;
+                    answerLink.className = 'answer-link';
+                    answerLink.innerHTML = 'Answers <i class="fas fa-chevron-right"></i>';
+                    itemElement.appendChild(answerLink);
+                }
+
+                cardBody.appendChild(itemElement);
+            });
+
+            // Add "add new item" section
+            const addItem = document.createElement('div');
+            addItem.className = 'add-item';
+
+            const addInput = document.createElement('input');
+            addInput.type = 'text';
+            addInput.className = 'add-item-input';
+            addInput.placeholder = `Add new ${type === 'tasks' ? 'task' : 'question'}...`;
+            
+            const addButton = document.createElement('button');
+            addButton.className = 'add-item-btn';
+            addButton.innerHTML = '<i class="fas fa-plus"></i>';
+            
+            addButton.addEventListener('click', function() {
+                if (addInput.value.trim() !== '') {
+                    // Add the new item
+                    const newItem = addInput.value.trim();
+                    items.push(newItem);
+                    
+                    // Create and insert the new item
+                    const itemElement = document.createElement('div');
+                    itemElement.className = type === 'tasks' ? 'task-item' : 'question-item';
+
+                    const itemContent = document.createElement('div');
+                    itemContent.className = 'item-content';
+
+                    const itemText = document.createElement('input');
+                    itemText.type = 'text';
+                    itemText.className = 'item-text';
+                    itemText.value = newItem;
+                    
+                    itemText.addEventListener('blur', function() {
+                        const itemIndex = items.indexOf(newItem);
+                        if (this.value.trim() === '' && itemIndex !== -1) {
+                            // Remove empty item
+                            items.splice(itemIndex, 1);
+                            itemElement.remove();
+                        } else if (itemIndex !== -1) {
+                            // Update item
+                            items[itemIndex] = this.value;
+                        }
+                    });
+                    
+                    itemContent.appendChild(itemText);
+
+                    itemElement.appendChild(itemContent);
+
+                    if (type === 'questions') {
+                        const answerLink = document.createElement('a');
+                        answerLink.href = `/question/${category}/${items.length}`;
+                        answerLink.className = 'answer-link';
+                        answerLink.innerHTML = 'Answers <i class="fas fa-chevron-right"></i>';
+                        itemElement.appendChild(answerLink);
+                    }
+
+                    cardBody.insertBefore(itemElement, addItem);
+                    
+                    // Clear the input
+                    addInput.value = '';
+                }
+            });
+            
+            addItem.appendChild(addInput);
+            addItem.appendChild(addButton);
+            cardBody.appendChild(addItem);
+            card.appendChild(cardBody);
+
+            return card;
+        }
+
+        // Function to create a category column
+        function createCategoryColumn(category, categoryData) {
+            const column = document.createElement('div');
+            column.className = 'column';
+
+            // Add column header
+            const columnHeader = document.createElement('div');
+            columnHeader.className = 'column-header';
+            columnHeader.textContent = category.charAt(0).toUpperCase() + category.slice(1);
+            column.appendChild(columnHeader);
+
+            // Add tasks card if there are tasks or the ability to add them
+            if (categoryData.tasks.length > 0 || true) {
+                const tasksCard = createSubCard('tasks', categoryData.tasks, category);
+                column.appendChild(tasksCard);
+            }
+
+            // Add questions card (always shown)
+            const questionsCard = createSubCard('questions', categoryData.questions, category);
+            column.appendChild(questionsCard);
+
+            return column;
+        }
+
+        // Load data from data.json and render dashboard
+        document.addEventListener('DOMContentLoaded', function() {
+            fetch('data.json')
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    const dashboard = document.getElementById('dashboard');
+                    dashboard.innerHTML = ''; // Clear loading message
+
+                    // Create a column for each category
+                    for (const [category, categoryData] of Object.entries(data)) {
+                        const column = createCategoryColumn(category, categoryData);
+                        dashboard.appendChild(column);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error loading data:', error);
+                    document.getElementById('dashboard').innerHTML = 
+                        '<div class="loading">Error loading data. Please try again later.</div>';
+                });
+        });
+    </script>
+</body>
+</html>
