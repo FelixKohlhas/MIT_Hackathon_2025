@@ -7,7 +7,7 @@
 
 Due to the impact of global warming, the number and severity of extreme weather events, such as storms, floods and wildfires due to droughts, have been on the rise and will continue to rise for the foreseeable future.
 
-To be better prepared for events such as this, we have built a prototype system named “525” (five-two-five). It is an AI-based, highly automated Disaster Assessment Platform that allows not just government officials and first responders but also members of the community to keep an overview of the situation and optimize rescue efforts.
+To be better prepared for events such as these, we have built a prototype system named “525” (five-two-five). It is an AI-based, highly automated Disaster Assessment Platform that allows not just government officials and first responders but also members of the community to keep an overview of the situation and optimize rescue efforts.
 
 It is designed to be a dashboard of all information available at the time, with a backend that can autonomously acquire and analyze new data in the background. In order be more resilient to events such as power outages and disruption of internet infrastructure, the system allows input and output of data as speech though phone calls. This also gives it a more human character and may provide additional emotional support to affected inhabitants.
 
@@ -27,6 +27,7 @@ The project is currently in a prototype state. The following features are alread
 - **Voice agent**: A voice agent that can call people and ask them questions about the event.
 - **Dashboard**: A dashboard that visualizes the responses of the recipients of the calls on a map.
 - **Tasks & Questions**: A dashboard that allows operators to add specific instructions to be given or questions to be asked during the calls.
+
 The last two are currently static demos, but the voice agent is already in a functional state.
 
 ## Voice Agent Demo
@@ -44,7 +45,7 @@ python prototype.py
 
 ## Dashboard Demo
 
-_This is the map and dashboard on which the reveived data will be visualized. The map allows operators to get an overview of the situation by visualizing the responses of the recipients of the calls. The “Tasks & Questions” dashboard allows operators to add specific instructions to be given or questions to be asked during the calls._
+_This is the map and dashboard on which the received data will be visualized. The map allows operators to get an overview of the situation by visualizing the responses of the recipients of the calls. The “Tasks & Questions” dashboard allows operators to add specific instructions to be given or questions to be asked during the calls._
 
 ### Install dependencies
 ```bash
@@ -54,6 +55,9 @@ pip install -r requirements.txt
 ```bash
 python -m http.server
 ```
+
+### Open the dashboard
+Open your browser and navigate to `http://localhost:8000` to view the dashboard.
 
 ## Technical
 
