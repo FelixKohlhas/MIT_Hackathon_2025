@@ -78,9 +78,10 @@ I mainly let the LLMs generate functions and manually integrated them with each 
 ### Data
 
 The source of the data about the hospitals is the "TK-Klinikführer". It was converted from text to JSON using `gpt-4o-mini`.
-More information can be found in map_data/README.md.
 
-### Expectations, Challenges and Results
+More information can be found in [map_data/README.md](map_data/README.md).
+
+## Expectations, Challenges and Results
 
 I had no prior experience with voice-based agents and was worried that latency would be the biggest issue for this project. This is why I spent the most time of the project working on the voice agent. I am really pleased with how well it turned out. The voice assistant has such low latency that the delay is barely noticable and the conversation feels natural. I think though streaming the Speech-to-Text live into the LLM, I was able to achieve the lowest latency possible, without the use of a multi-modal model.
 
