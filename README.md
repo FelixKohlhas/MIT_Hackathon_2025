@@ -1,7 +1,24 @@
 # 525 – Automated Disaster Information Gathering System
 
-### Voice Agent Demo
+## Voice Agent Demo
+### Install dependencies
+```bash
+pip install -r requirements.txt
+```
+### Run the demo
+```bash
+python prototype.py
+```
 
+## Dashboard Demo
+### Install dependencies
+```bash
+pip install -r requirements.txt
+```
+### Run the demo
+```bash
+python -m http.server
+```
 
 ### Technical
 
